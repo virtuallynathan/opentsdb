@@ -24,6 +24,8 @@ import org.jboss.netty.handler.codec.http.HttpChunkAggregator;
 import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.jboss.netty.handler.codec.http.HttpResponseEncoder;
 
+import org.jboss.netty.handler.codec.http.HttpContentDecompressor;
+
 import net.opentsdb.core.TSDB;
 
 /**
@@ -102,6 +104,8 @@ public final class PipelineFactory implements ChannelPipelineFactory {
           pipeline.addLast("aggregator", new HttpChunkAggregator(
               tsdb.getConfig().max_chunked_requests()));
         }
+				// allow client to encode the payload (ie : with gziped json)
+				pipeline.addLast("deflater", new HttpContentDecompressor());
         pipeline.addLast("encoder", new HttpResponseEncoder());
       } else {
         pipeline.addLast("framer", new LineBasedFrameDecoder(1024));
